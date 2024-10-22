@@ -1,0 +1,6 @@
+services:
+  presenceapi:
+    image: ${DOCKER_REGISTRY-}presenceapi
+    build:
+      context: .
+      dockerfile: PresenceApi/PresenceApi/Dockerfile
