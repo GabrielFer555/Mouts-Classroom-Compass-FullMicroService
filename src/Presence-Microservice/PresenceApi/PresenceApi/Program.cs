@@ -11,6 +11,8 @@ using PresenceApi.Presences.CreateVariousPresences;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCarter();
 
+builder.Services.AddCors();
+
 var mongoDBSection = builder.Configuration.GetSection("MongoDBSettings").Get<MongoDbSettings>();
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDBSettings"));
 
