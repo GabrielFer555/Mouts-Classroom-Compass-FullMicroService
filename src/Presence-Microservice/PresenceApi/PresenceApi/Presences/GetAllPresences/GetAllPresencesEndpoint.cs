@@ -7,10 +7,10 @@ namespace PresenceApi.Presences.GetAllPresences
 	{
 		public void AddRoutes(IEndpointRouteBuilder app)
 		{
-			app.MapGet("/presence", async (ISender sender, DateTime? datePresence, string? subject, int? limit, int? page) =>
+			app.MapGet("/presence", async (ISender sender, DateTime? datePresence, string? subject, int? limit, int? page, string? student) =>
 			{
 				
-				var result = await sender.Send(new GetAllPresencesQuery(datePresence, subject, limit, page));
+				var result = await sender.Send(new GetAllPresencesQuery(datePresence, subject, limit, page, student));
 				var response = result.Adapt<GetProductResponse>();
 
 				return Results.Ok(response);

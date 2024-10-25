@@ -2,7 +2,7 @@
 
 namespace PresenceApi.Presences.GetAllPresences
 {
-	public record GetAllPresencesQuery(DateTime? Date, string? Subject, int? Limit, int? Page):IQuery<GetPresencesQueryResults>;
+	public record GetAllPresencesQuery(DateTime? Date, string? Subject, int? Limit, int? Page, string? Student	):IQuery<GetPresencesQueryResults>;
 	public record GetPresencesQueryResults(IEnumerable<Presence> Presences, int Limit, int Page, long Registers);
 	internal class GetAllPresencesQueryHandler(MongoDBContext _context, ILogger<GetAllPresencesQuery> logger) : IQueryHandler<GetAllPresencesQuery, GetPresencesQueryResults>
 	{
@@ -31,6 +31,11 @@ namespace PresenceApi.Presences.GetAllPresences
 			{
 				var subjectFilter = Builders<Presence>.Filter.Eq(p => p.Subject.Id, Guid.Parse(query.Subject));
 				filter = Builders<Presence>.Filter.And(filter, subjectFilter);
+			}
+			if(query.Student is not null)
+			{
+				var studentFilter = Builders<Presence>.Filter.Eq(p => p.Student.Id, Guid.Parse(query.Student));
+				filter = Builders<Presence>.Filter.And(filter, studentFilter);
 			}
 
 			var listPresences = await _context.Presences.Find<Presence>(filter).Limit(limit).Skip((page *limit)).ToListAsync(cancellationToken);
