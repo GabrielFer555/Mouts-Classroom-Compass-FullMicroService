@@ -2,13 +2,17 @@
 
 namespace PresenceApi.Presences.GetAllPresences
 {
-	public record GetAllPresencesQuery(DateTime? Date, string? Subject):IQuery<GetPresencesQueryResults>;
-	public record GetPresencesQueryResults(IEnumerable<Presence> Presences);
+	public record GetAllPresencesQuery(DateTime? Date, string? Subject, int? Limit, int? Page):IQuery<GetPresencesQueryResults>;
+	public record GetPresencesQueryResults(IEnumerable<Presence> Presences, int Limit, int Page, long Registers);
 	internal class GetAllPresencesQueryHandler(MongoDBContext _context, ILogger<GetAllPresencesQuery> logger) : IQueryHandler<GetAllPresencesQuery, GetPresencesQueryResults>
 	{
 		public async Task<GetPresencesQueryResults> Handle(GetAllPresencesQuery query, CancellationToken cancellationToken)
 		{
 			logger.LogInformation($"Route GET ALL PRESENCES consulted with params {query}");
+
+
+			int limit = query.Limit ?? 10;
+			int page = query.Page ?? 0;	
 
 			var filter = Builders<Presence>.Filter.Empty; 
 			if(query.Date.HasValue)
@@ -28,9 +32,10 @@ namespace PresenceApi.Presences.GetAllPresences
 				var subjectFilter = Builders<Presence>.Filter.Eq(p => p.Subject.Id, Guid.Parse(query.Subject));
 				filter = Builders<Presence>.Filter.And(filter, subjectFilter);
 			}
-			var listPresences = await _context.Presences.Find<Presence>(filter).ToListAsync(cancellationToken);
-			
-			return new GetPresencesQueryResults(listPresences);
+
+			var listPresences = await _context.Presences.Find<Presence>(filter).Limit(limit).Skip((page *limit)).ToListAsync(cancellationToken);
+			var totalRegister = await _context.Presences.CountDocumentsAsync(filter);
+			return new GetPresencesQueryResults(listPresences, limit, page, totalRegister);
 		}
 	}
 }
