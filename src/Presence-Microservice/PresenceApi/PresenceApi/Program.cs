@@ -11,7 +11,13 @@ using PresenceApi.Presences.CreateVariousPresences;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCarter();
 
-builder.Services.AddCors();
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowAllOrigins",
+		builder => builder.AllowAnyOrigin()
+						  .AllowAnyMethod()
+						  .AllowAnyHeader());
+});
 
 var mongoDBSection = builder.Configuration.GetSection("MongoDBSettings").Get<MongoDbSettings>();
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDBSettings"));
@@ -31,6 +37,8 @@ builder.Services.AddMediatR(configs =>
 	configs.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
 var app = builder.Build();
+
+app.UseCors("AllowAllOrigins");
 
 app.MapCarter();
 
