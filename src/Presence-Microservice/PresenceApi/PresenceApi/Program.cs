@@ -1,16 +1,12 @@
-using MongoDB.Driver;
-using Microsoft.EntityFrameworkCore;
-using PresenceApi.Models;
-using PresenceApi.Context;
-using Microsoft.Extensions.Configuration;
-using System;
+using Microsoft.OpenApi.Models;
 using PresenceApi.Presences.CreatePresence;
-using PresenceApi.Validators;
 using PresenceApi.Presences.CreateVariousPresences;
+using PresenceApi.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCarter();
-
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "Presence Api", Version = "v1" }));
 builder.Services.AddCors(options =>
 {
 	options.AddPolicy("AllowAllOrigins",
@@ -36,10 +32,16 @@ builder.Services.AddMediatR(configs =>
 {
 	configs.RegisterServicesFromAssembly(typeof(Program).Assembly);
 });
+
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+	app.UseSwagger();
+	app.UseSwaggerUI(e => e.RoutePrefix="swagger");
+}
+
+app.UseHttpsRedirection();
 app.UseCors("AllowAllOrigins");
-
 app.MapCarter();
-
 app.Run();
