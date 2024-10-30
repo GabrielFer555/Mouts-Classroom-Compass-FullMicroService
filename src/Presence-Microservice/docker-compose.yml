@@ -5,8 +5,30 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+     - custom-network
+  mongo-express:
+     image: mongo-express
+     restart: always
   presenceapi:
     image: ${DOCKER_REGISTRY-}presenceapi
+    networks:
+     - custom-network
     build:
       context: .
       dockerfile: PresenceApi/PresenceApi/Dockerfile
+
+  mcc:
+    image: ${DOCKER_REGISTRY-}mcc
+    networks:
+     - custom-network
+    build:
+      context: .
+      dockerfile: MCC/Dockerfile
+
+volumes:
+  mongo-data:  
+networks:
+  custom-network:
+    driver: bridge
+

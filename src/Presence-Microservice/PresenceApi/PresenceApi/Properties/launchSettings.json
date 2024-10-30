@@ -30,8 +30,8 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "environmentVariables": {
-        "ASPNETCORE_HTTPS_PORTS": "6000",
-        "ASPNETCORE_HTTP_PORTS": "6060"
+        "ASPNETCORE_HTTPS_PORTS": "6060",
+        "ASPNETCORE_HTTP_PORTS": "6000"
       },
       "publishAllPorts": true,
       "useSSL": true

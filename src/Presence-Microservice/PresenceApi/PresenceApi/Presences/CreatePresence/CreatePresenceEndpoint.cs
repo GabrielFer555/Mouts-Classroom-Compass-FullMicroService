@@ -37,7 +37,7 @@ namespace PresenceApi.Presences.CreatePresence
 					return Results.Created($"/presence/{response.Id}", response);
 				}
 				catch (Exception ex) { 
-					return Results.BadRequest(ex.Message);
+					return Results.BadRequest(ex);
 				}
 
 			});

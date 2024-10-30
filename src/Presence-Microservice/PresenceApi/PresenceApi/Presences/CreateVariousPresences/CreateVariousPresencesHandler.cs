@@ -12,10 +12,15 @@ namespace PresenceApi.Presences.CreateVariousPresences
 		public async Task<CreateVariousPresencesCommandResult> Handle(CreateVariousPresencesCommand command, CancellationToken cancellationToken)
 		{
 
-			string urlAuth = "https://localhost:7172/Login";
+			string urlAuth = "https://mcc:8081/Login";
 			UserAuthBodyRequest data = new UserAuthBodyRequest("gaybriel@example.com", "Gabriel2004!!");
-			var httpRequest = new HttpClient();
-			var responseAuth = await httpRequest.PostAsJsonAsync(urlAuth, data);
+			var httpRequest = new HttpClient(new HttpClientHandler
+			{
+				ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+			});
+			var jsonText = JsonConvert.SerializeObject(data);
+			var content = new StringContent(jsonText, System.Text.Encoding.UTF8, "application/json");
+			var responseAuth = await httpRequest.PostAsync(urlAuth, content);
 			if (!responseAuth.IsSuccessStatusCode)
 			{
 				throw new Exception("Impossible to validate data");
@@ -24,7 +29,7 @@ namespace PresenceApi.Presences.CreateVariousPresences
 
 			foreach(var presence in command.Presences)
 			{
-				string validationUrl = $"https://localhost:7172/api/Validation?subject={presence.Subject.Id}&teacher={presence.Teacher.Id}&student={presence.Student.Id}";
+				string validationUrl = $"https://mcc:8081/api/Validation?subject={presence.Subject.Id}&teacher={presence.Teacher.Id}&student={presence.Student.Id}";
 
 
 				httpRequest.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);

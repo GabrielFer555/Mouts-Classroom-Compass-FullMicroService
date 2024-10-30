@@ -1,11 +1,6 @@
-﻿using System.Text.Json;
-using BuildingBlocks.CQRS;
-using PresenceApi.Context;
-using PresenceApi.Models;
+﻿
 using Newtonsoft.Json;
-using System.Text.Json.Serialization;
-using System.Net.Http;
-
+using System.Text.Json;
 
 namespace PresenceApi.Presences.CreatePresence
 {
@@ -25,18 +20,23 @@ namespace PresenceApi.Presences.CreatePresence
 			};
 
 
-			string urlAuth = "https://localhost:7172/Login";
+			string urlAuth = "https://mcc:8081/Login";
+
 			UserAuthBodyRequest data = new UserAuthBodyRequest("gaybriel@example.com", "Gabriel2004!!");
 
-			var httpRequest = new HttpClient();
-			var responseAuth = await httpRequest.PostAsJsonAsync(urlAuth, data);
+			var httpRequest = new HttpClient(new HttpClientHandler
+			{
+				ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true
+			});
+			var jsonText =  JsonConvert.SerializeObject(data);
+			var content = new StringContent(jsonText, System.Text.Encoding.UTF8, "application/json");
+			var responseAuth = await httpRequest.PostAsync(urlAuth, content, cancellationToken: cancellationToken);
 			if (!responseAuth.IsSuccessStatusCode) {
 				throw new Exception("Impossible to validate data");
 			}
 			string token = await responseAuth.Content.ReadAsStringAsync();
-
-			string validationUrl = $"https://localhost:7172/api/Validation?subject={command.Subject.Id}&teacher={command.Teacher.Id}&student={command.Student.Id}";
-
+			string validationUrl = $"https://mcc:8081/api/Validation?subject={command.Subject.Id}&teacher={command.Teacher.Id}&student={command.Student.Id}";
+           
 
 			httpRequest.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 			var response = await httpRequest.GetAsync(validationUrl);
